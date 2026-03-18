@@ -71,7 +71,7 @@ def calculate_gains(transactions, year, ticker):
     tg = TickerGains(ticker)
     tg.add_transactions(ticker_transactions, er_map)
     return ticker_transactions.filter_by(
-        year=year, action='SELL', superficial_loss=False
+        year=year, action='SELL'
     )
 
 

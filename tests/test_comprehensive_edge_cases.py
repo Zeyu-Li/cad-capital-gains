@@ -45,7 +45,10 @@ def test_overlapping_loss_windows(requests_mock):
     # (superficial)
 
     transactions = overlap_data['transactions']
-    assert len(transactions) == 0  # Both losses should be superficial
+    # Both losses are fully denied superficial losses but now appear in output
+    assert len(transactions) == 2
+    for tx in transactions:
+        assert abs(tx['capital_gain']) < 0.01
 
     # First loss window: Jan 15 ± 30 days (Dec 16 - Feb 14)
     # Second loss window: Jan 30 ± 30 days (Dec 31 - Mar 1)
@@ -178,4 +181,7 @@ def test_window_boundary_trades(requests_mock):
     # (superficial)
 
     transactions = window_data['transactions']
-    assert len(transactions) == 0  # Both should be superficial losses
+    # Both losses are fully denied superficial losses but now appear in output
+    assert len(transactions) == 2
+    for tx in transactions:
+        assert abs(tx['capital_gain']) < 0.01

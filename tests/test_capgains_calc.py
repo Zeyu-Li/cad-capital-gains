@@ -64,8 +64,9 @@ No capital gains
 """
 
 
-def test_superficial_loss_not_displayed(capfd, exchange_rates_mock):
-    """Testing capgains_calc with a superficial loss transaction."""
+def test_partial_superficial_loss_displayed(capfd, exchange_rates_mock):
+    """Testing capgains_calc with a partial superficial loss transaction.
+    The partially-denied loss should appear in output with its allowed portion."""
     transactions = [
         Transaction(
             date(2018, 1, 1),
@@ -107,7 +108,8 @@ ANET-2018
 +------------+---------------+----------+-------+------------+-----------+-----------+---------------------+
 | date       | description   | ticker   |   qty |   proceeds |       ACB |   outlays |   capital gain/loss |
 |------------+---------------+----------+-------+------------+-----------+-----------+---------------------|
-| 2018-12-01 | RSU VEST      | ANET     |     1 |   2,000.00 | 10,140.00 |     20.00 |           -8,160.00 |
+| 2018-01-02 | RSU VEST      | ANET     |    99 |   9,900.00 | 19,819.80 |     20.00 |           -9,839.40 |
+| 2018-12-01 | RSU VEST      | ANET     |     1 |   2,000.00 |    300.60 |     20.00 |            1,679.40 |
 +------------+---------------+----------+-------+------------+-----------+-----------+---------------------+
 
 """  # noqa: E501

@@ -28,7 +28,7 @@ class Transaction:
         self._proceeds = Decimal(0.0)
         self._capital_gain = Decimal(0.0)
         self._acb = Decimal(0.0)
-        self._superficial_loss = False
+        self._superficial_loss = Decimal(0)
         self._cumulative_cost = Decimal(0.0)
 
     @property
@@ -117,9 +117,9 @@ class Transaction:
     def expenses(self):
         return self.commission * self.exchange_rate
 
-    def set_superficial_loss(self):
-        self.superficial_loss = True
-        self.capital_gain = Decimal(0.0)
+    def set_superficial_loss(self, denied_amount):
+        self._superficial_loss = Decimal(denied_amount)
+        self._capital_gain += Decimal(denied_amount)
 
     def add_rate(self, exchange_rates):
         rate = exchange_rates[self.currency].get_rate(self.date)

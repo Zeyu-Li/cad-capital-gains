@@ -15,9 +15,12 @@ class TickerGains:
         for t in transactions:
             t.add_rate(exchange_rates)
             self._add_transaction(t)
-            if self._is_superficial_loss(t, transactions):
-                self._total_acb -= t.capital_gain
-                t.set_superficial_loss()
+            sl_shares = self._superficial_loss_shares(t, transactions)
+            if sl_shares > 0:
+                denied_proportion = sl_shares / t.qty
+                denied_amount = -(t.capital_gain * denied_proportion)
+                self._total_acb += denied_amount
+                t.set_superficial_loss(denied_amount)
 
     def _superficial_window_filter(self, transaction, min_date, max_date):
         """Filter out BUY transactions that fall within the 61 day superficial
@@ -28,11 +31,12 @@ class TickerGains:
             and transaction.date <= max_date
         )
 
-    def _is_superficial_loss(self, transaction, transactions):
-        """Figures out if the transaction is a superficial loss."""
+    def _superficial_loss_shares(self, transaction, transactions):
+        """Returns the number of shares subject to the superficial loss rule,
+        or 0 if the transaction is not a superficial loss."""
         # Has to be a capital loss
         if (transaction.capital_gain >= 0):
-            return False
+            return 0
         min_date = transaction.date - timedelta(days=30)
         max_date = transaction.date + timedelta(days=30)
         filtered_transactions = list(
@@ -44,8 +48,8 @@ class TickerGains:
         )
         # Has to have a purchase either 30 days before or 30 days after
         if (not any(t.action == 'BUY' for t in filtered_transactions)):
-            return False
-        # Has to have a positive share balance after 30 days
+            return 0
+        # Calculate share balance at end of the 30-day post-sale window
         transaction_idx = filtered_transactions.index(transaction)
         balance = transaction._share_balance
         for window_transaction in filtered_transactions[transaction_idx + 1:]:
@@ -53,7 +57,9 @@ class TickerGains:
                 balance -= window_transaction.qty
             else:
                 balance += window_transaction.qty
-        return balance > 0
+        if balance <= 0:
+            return 0
+        return min(balance, transaction.qty)
 
     def _add_transaction(self, transaction):
         """Adds a transaction and updates the calculated values."""

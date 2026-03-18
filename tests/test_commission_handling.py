@@ -306,8 +306,8 @@ def test_commission_in_superficial_loss(requests_mock, tmpdir):
     # Cost = (50 × 45.00 + 9.99) × 2.0 = 4,519.98 CAD
     # Denied loss is added to ACB of new shares
 
-    # The transaction should not appear in the output since it's a superficial
-    # loss
-    assert len(super_data['transactions']) == 0
+    # Fully denied superficial loss now appears with capital_gain = 0
+    assert len(super_data['transactions']) == 1
+    assert abs(super_data['transactions'][0]['capital_gain']) < 0.01
     # Total gains should be 0 since the loss was denied
     assert abs(super_data['total_gains']) < 0.01

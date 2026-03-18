@@ -78,9 +78,10 @@ def test_superficial_loss_with_prior_purchase(requests_mock):
     msft_data = data['MSFT']
 
     assert msft_data['year'] == 2022
-    assert msft_data['total_gains'] == 0
-    # All transactions should be superficial losses
-    assert len(msft_data['transactions']) == 0
+    # Fully denied superficial loss now appears with capital_gain = 0
+    assert len(msft_data['transactions']) == 1
+    assert abs(msft_data['transactions'][0]['capital_gain']) < 0.01
+    assert abs(msft_data['total_gains']) < 0.01
 
 
 def test_superficial_loss_with_subsequent_purchase(requests_mock):
@@ -111,9 +112,10 @@ def test_superficial_loss_with_subsequent_purchase(requests_mock):
     googl_data = data['GOOGL']
 
     assert googl_data['year'] == 2022
-    assert googl_data['total_gains'] == 0
-    # All transactions should be superficial losses
-    assert len(googl_data['transactions']) == 0
+    # Fully denied superficial loss now appears with capital_gain = 0
+    assert len(googl_data['transactions']) == 1
+    assert abs(googl_data['transactions'][0]['capital_gain']) < 0.01
+    assert abs(googl_data['total_gains']) < 0.01
 
 
 def test_superficial_loss_edge_case(requests_mock):
@@ -144,8 +146,10 @@ def test_superficial_loss_edge_case(requests_mock):
     edge_data = data['EDGE']
 
     assert edge_data['year'] == 2024
-    assert edge_data['total_gains'] == 0
-    assert len(edge_data['transactions']) == 0  # Should be a superficial loss
+    # Fully denied superficial loss now appears with capital_gain = 0
+    assert len(edge_data['transactions']) == 1
+    assert abs(edge_data['transactions'][0]['capital_gain']) < 0.01
+    assert abs(edge_data['total_gains']) < 0.01
 
 
 def test_loss_just_outside_window(requests_mock):
@@ -212,8 +216,10 @@ def test_multiple_purchases_in_window(requests_mock):
     multi_data = data['MULTI']
 
     assert multi_data['year'] == 2024
-    assert multi_data['total_gains'] == 0
-    assert len(multi_data['transactions']) == 0  # Should be a superficial loss
+    # Fully denied superficial loss now appears with capital_gain = 0
+    assert len(multi_data['transactions']) == 1
+    assert abs(multi_data['transactions'][0]['capital_gain']) < 0.01
+    assert abs(multi_data['total_gains']) < 0.01
 
 
 def test_zero_balance_at_window_end(requests_mock):

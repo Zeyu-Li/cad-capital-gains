@@ -63,9 +63,10 @@ class Transactions:
             if action:
                 keep &= (t.action == action)
             if superficial_loss is not None:
-                # superficial_loss can be set to False, so need to explicitly
-                # check that it is not set to None
-                keep &= (t.superficial_loss == superficial_loss)
+                if superficial_loss:
+                    keep &= (t.superficial_loss > 0)
+                else:
+                    keep &= (t.superficial_loss == 0)
             return keep
 
         return Transactions(filter(lambda_filter, self.transactions))
