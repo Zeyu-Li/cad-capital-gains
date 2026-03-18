@@ -190,3 +190,49 @@ ANET-2018
 +------------+---------------+----------+-------+------------+-------+-----------+---------------------+
 
 """  # noqa: E501
+
+
+def test_cross_year_superficial_loss(capfd, exchange_rates_mock):
+    """A sale at a loss in late December should be detected as superficial
+    if there is a buy in early January of the next year."""
+    transactions = [
+        Transaction(
+            date(2018, 1, 1),
+            'BUY',
+            'ANET',
+            'BUY',
+            100,
+            100.00,
+            0,
+            'USD'
+        ),
+        Transaction(
+            date(2018, 12, 20),
+            'SELL',
+            'ANET',
+            'SELL',
+            100,
+            50.00,
+            0,
+            'USD'
+        ),
+        Transaction(
+            date(2019, 1, 5),
+            'BUY',
+            'ANET',
+            'BUY',
+            60,
+            50.00,
+            0,
+            'USD'
+        )
+    ]
+    transactions = Transactions(transactions)
+    CapGainsCalc.capgains_calc(transactions, 2018)
+    out, _ = capfd.readouterr()
+    # Sell 100 @ $50 (rate=2): proceeds=10000, ACB=20000, loss=-10000
+    # Jan 5 buy is within 30-day window. Balance at end of window = 60.
+    # min(60, 100) = 60. Denied = 10000 * 60/100 = 6000.
+    # Allowed loss = -10000 + 6000 = -4000
+    assert "ANET-2018" in out
+    assert "Total Gains = -4,000.00" in out

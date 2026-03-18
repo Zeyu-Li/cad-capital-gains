@@ -1,6 +1,7 @@
 import click
 import tabulate
 import json
+from datetime import date, timedelta
 from itertools import groupby
 
 from capgains.exchange_rate import ExchangeRate
@@ -64,8 +65,12 @@ def _get_map_of_currencies_to_exchange_rates(transactions):
 
 
 def calculate_gains(transactions, year, ticker):
+    # Include transactions up to 30 days into the next year so that the
+    # superficial loss window can detect early-January purchases that
+    # affect late-December sales.
+    window_end = date(year + 1, 1, 30)
     ticker_transactions = transactions.filter_by(
-        tickers=[ticker], max_year=year
+        tickers=[ticker], max_date=window_end
     )
     er_map = _get_map_of_currencies_to_exchange_rates(ticker_transactions)
     tg = TickerGains(ticker)

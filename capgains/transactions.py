@@ -45,6 +45,7 @@ class Transactions:
         tickers=None,
         year=None,
         max_year=None,
+        max_date=None,
         action=None,
         superficial_loss=None
     ):
@@ -60,6 +61,8 @@ class Transactions:
                 keep &= (t.date.year == year)
             if max_year:
                 keep &= (t.date.year <= max_year)
+            if max_date:
+                keep &= (t.date <= max_date)
             if action:
                 keep &= (t.action == action)
             if superficial_loss is not None:
