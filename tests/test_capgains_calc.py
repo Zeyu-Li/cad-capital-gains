@@ -236,3 +236,94 @@ def test_cross_year_superficial_loss(capfd, exchange_rates_mock):
     # Allowed loss = -10000 + 6000 = -4000
     assert "ANET-2018" in out
     assert "Total Gains = -4,000.00" in out
+
+
+def test_cross_year_no_superficial_without_next_year_buy(capfd, exchange_rates_mock):
+    """A late-December sale at a loss should NOT be superficial if the
+    next-year buy is outside the 30-day window. Also verifies that
+    next-year transactions don't affect the current year's ACB."""
+    transactions = [
+        Transaction(
+            date(2018, 1, 1),
+            'BUY',
+            'ANET',
+            'BUY',
+            100,
+            100.00,
+            0,
+            'USD'
+        ),
+        Transaction(
+            date(2018, 12, 1),
+            'SELL',
+            'ANET',
+            'SELL',
+            100,
+            50.00,
+            0,
+            'USD'
+        ),
+        Transaction(
+            date(2019, 1, 15),
+            'BUY',
+            'ANET',
+            'BUY',
+            50,
+            50.00,
+            0,
+            'USD'
+        )
+    ]
+    transactions = Transactions(transactions)
+    CapGainsCalc.capgains_calc(transactions, 2018)
+    out, _ = capfd.readouterr()
+    # Sell 100 @ $50 (rate=2): proceeds=10000, ACB=20000, loss=-10000
+    # Jan 15 buy is 45 days after Dec 1 sale — outside 30-day window.
+    # No superficial loss. Full loss claimable.
+    assert "ANET-2018" in out
+    assert "Total Gains = -10,000.00" in out
+
+
+def test_cross_year_acb_not_affected_by_lookahead(capfd, exchange_rates_mock):
+    """Next-year transactions used for wash sale detection must not
+    alter the ACB reported for current-year sells."""
+    transactions = [
+        Transaction(
+            date(2018, 1, 1),
+            'BUY',
+            'ANET',
+            'BUY',
+            100,
+            100.00,
+            0,
+            'USD'
+        ),
+        Transaction(
+            date(2018, 6, 1),
+            'SELL',
+            'ANET',
+            'SELL',
+            50,
+            150.00,
+            0,
+            'USD'
+        ),
+        Transaction(
+            date(2019, 1, 10),
+            'BUY',
+            'ANET',
+            'BUY',
+            200,
+            200.00,
+            0,
+            'USD'
+        )
+    ]
+    transactions = Transactions(transactions)
+    CapGainsCalc.capgains_calc(transactions, 2018)
+    out, _ = capfd.readouterr()
+    # Sell 50 @ $150 (rate=2): proceeds=15000, ACB=200*50=10000, gain=5000
+    # The Jan 2019 buy should NOT appear in 2018 output or change the ACB.
+    assert "ANET-2018" in out
+    assert "Total Gains = 5,000.00" in out
+    assert "10,000.00" in out  # ACB column
