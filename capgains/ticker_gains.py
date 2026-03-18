@@ -10,12 +10,22 @@ class TickerGains:
         self._share_balance = 0
         self._total_acb = 0
 
-    def add_transactions(self, transactions, exchange_rates):
-        """Adds all transactions and updates the calculated values."""
+    def add_transactions(self, transactions, exchange_rates,
+                         lookahead_transactions=None):
+        """Adds all transactions and updates the calculated values.
+
+        Args:
+            transactions: Transactions to process for ACB calculation.
+            exchange_rates: Map of currency to ExchangeRate objects.
+            lookahead_transactions: Optional broader set of transactions
+                (including future ones) used only for superficial loss
+                window detection. If None, uses transactions.
+        """
+        sl_transactions = lookahead_transactions or transactions
         for t in transactions:
             t.add_rate(exchange_rates)
             self._add_transaction(t)
-            sl_shares = self._superficial_loss_shares(t, transactions)
+            sl_shares = self._superficial_loss_shares(t, sl_transactions)
             if sl_shares > 0:
                 denied_proportion = sl_shares / t.qty
                 denied_amount = -(t.capital_gain * denied_proportion)

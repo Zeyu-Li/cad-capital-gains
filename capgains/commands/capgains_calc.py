@@ -65,16 +65,18 @@ def _get_map_of_currencies_to_exchange_rates(transactions):
 
 
 def calculate_gains(transactions, year, ticker):
-    # Include transactions up to 30 days into the next year so that the
-    # superficial loss window can detect early-January purchases that
-    # affect late-December sales.
-    window_end = date(year + 1, 1, 30)
     ticker_transactions = transactions.filter_by(
+        tickers=[ticker], max_year=year
+    )
+    # Include up to 30 days into the next year for superficial loss
+    # window detection only (not for ACB calculation).
+    window_end = date(year + 1, 1, 30)
+    lookahead_transactions = transactions.filter_by(
         tickers=[ticker], max_date=window_end
     )
-    er_map = _get_map_of_currencies_to_exchange_rates(ticker_transactions)
+    er_map = _get_map_of_currencies_to_exchange_rates(lookahead_transactions)
     tg = TickerGains(ticker)
-    tg.add_transactions(ticker_transactions, er_map)
+    tg.add_transactions(ticker_transactions, er_map, lookahead_transactions)
     return ticker_transactions.filter_by(
         year=year, action='SELL'
     )
