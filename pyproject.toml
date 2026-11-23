@@ -34,19 +34,19 @@ keywords = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.10"
-click = "^7.1.2"
-tabulate = "^0.8.7"
-requests = "^2.23.0"
-yapf = "^0.43.0"
+python = "^3.11"
+click = "^8.5.1"
+tabulate = "^0.10.0"
+requests = "^2.34.2"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.0.0"
-requests-mock = "^1.8.0"
-flake8 = "^6.1.0"
-tox = "^4.26.0"
-pytest-cov = "^6.1.1"
-flake8-pyproject = "^1.2.3"
+pytest = "^9.2.0"
+requests-mock = "^1.12.1"
+flake8 = "^7.5.0"
+tox = "^4.67.15"
+pytest-cov = "^7.1.0"
+flake8-pyproject = "^1.2.4"
+yapf = "^0.43.0"
 
 [tool.poetry.scripts]
 capgains = "capgains.cli:capgains"
