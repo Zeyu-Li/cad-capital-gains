@@ -1,7 +1,7 @@
 import click
 import tabulate
 import json
-from datetime import date, timedelta
+from datetime import date
 from itertools import groupby
 
 from capgains.exchange_rate import ExchangeRate

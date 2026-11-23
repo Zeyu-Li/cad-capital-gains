@@ -66,7 +66,8 @@ No capital gains
 
 def test_partial_superficial_loss_displayed(capfd, exchange_rates_mock):
     """Testing capgains_calc with a partial superficial loss transaction.
-    The partially-denied loss should appear in output with its allowed portion."""
+    The partially-denied loss should appear in output with its allowed
+    portion."""
     transactions = [
         Transaction(
             date(2018, 1, 1),
@@ -238,7 +239,8 @@ def test_cross_year_superficial_loss(capfd, exchange_rates_mock):
     assert "Total Gains = -4,000.00" in out
 
 
-def test_cross_year_no_superficial_without_next_year_buy(capfd, exchange_rates_mock):
+def test_cross_year_no_superficial_without_next_year_buy(
+        capfd, exchange_rates_mock):
     """A late-December sale at a loss should NOT be superficial if the
     next-year buy is outside the 30-day window. Also verifies that
     next-year transactions don't affect the current year's ACB."""

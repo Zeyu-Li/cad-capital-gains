@@ -39,7 +39,8 @@ def test_superficial_loss_no_purchase_after_loss(exchange_rates_mock):
     tg.add_transactions(transactions, er_map)
     assert transactions[1].superficial_loss > 0
     # Sell 99, balance=1. denied proportion = 1/99
-    full_loss = Decimal('9900') - Decimal('20') - (Decimal('20020') / Decimal('100') * Decimal('99'))
+    full_loss = (Decimal('9900') - Decimal('20')
+                 - (Decimal('20020') / Decimal('100') * Decimal('99')))
     denied = -(full_loss * Decimal('1') / Decimal('99'))
     assert transactions[1].superficial_loss == denied
     assert transactions[1].capital_gain == full_loss + denied
@@ -86,7 +87,8 @@ def test_superficial_loss_purchase_after_loss(exchange_rates_mock):
     tg.add_transactions(transactions, er_map)
     assert transactions[1].superficial_loss > 0
     # Sell 99, balance after window = 1 + 1 (buy) = 2. denied proportion = 2/99
-    full_loss = Decimal('9900') - Decimal('20') - (Decimal('20020') / Decimal('100') * Decimal('99'))
+    full_loss = (Decimal('9900') - Decimal('20')
+                 - (Decimal('20020') / Decimal('100') * Decimal('99')))
     denied = -(full_loss * Decimal('2') / Decimal('99'))
     assert transactions[1].superficial_loss == denied
     assert transactions[1].capital_gain == full_loss + denied
